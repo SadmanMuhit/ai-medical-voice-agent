@@ -1,11 +1,19 @@
-import React from 'react'
-
+import React from "react";
+import { Button } from "@/components/ui/button";
+import DoctorsAgentList from "./_components/DoctorsAgentList";
+import HistoryList from "./_components/historyList";
+import AddNewSession from "./_components/AddNewSession";
 function Dashboard() {
   return (
     <div>
-      Dashboard
+      <div className="flex justify-between items-center">
+        <h2 className="font-bold text-2xl">My Dashboard</h2>
+        <AddNewSession/>
+      </div>
+      <HistoryList />
+      <DoctorsAgentList />
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;

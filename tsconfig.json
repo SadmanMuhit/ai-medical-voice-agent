@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "app/(routes)/dashboard/_components/historyList.jsx"  ],
   "exclude": ["node_modules"]
 }
