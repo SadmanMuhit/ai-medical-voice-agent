@@ -1,25 +1,31 @@
-import { db } from "@/config/db";
-import { SessionChatTable } from "@/config/schema";
-import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
+
+// simple in-memory store (dev only)
+let sessions: any[] = [];
+
 export async function POST(req: NextRequest) {
-    const { notes, selectedDoctor} = await req.json();
-    const user = await currentUser();
+  const { notes, selectedDoctor } = await req.json();
 
-    try {
-        const sessionId = uuidv4();
-        const result = await db.insert(SessionChatTable).values({
-            sessionId: sessionId,
-            createdBy: user?.primaryEmailAddress?.emailAddress,
-            notes: notes,
-            selectedDoctor: selectedDoctor,
-            createdOn: (new Date()).toString()
-            //@ts-ignore
-        }).returning({SessionChatTable});
+  const sessionId = Math.random().toString(36).substring(7);
 
-        return NextResponse.json(result[0]?.SessionChatTable)
-    } catch (e) {
-        return NextResponse.json(e);
-    }
+  const newSession = {
+    id: Date.now(),
+    notes,
+    sessionId,
+    selectedDoctor, // ✅ full doctor object
+    createdOn: new Date().toISOString(),
+  };
+
+  sessions.push(newSession);
+
+  return NextResponse.json({ sessionId });
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const sessionId = searchParams.get("sessionId");
+
+  const session = sessions.find((s) => s.sessionId === sessionId);
+
+  return NextResponse.json(session || {});
 }

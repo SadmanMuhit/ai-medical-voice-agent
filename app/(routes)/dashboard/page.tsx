@@ -1,8 +1,7 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import DoctorsAgentList from "./_components/DoctorsAgentList";
-import HistoryList from "./_components/historyList";
 import AddNewSession from "./_components/AddNewSession";
+import HistoryList from "./_components/historyList";
+import DoctorsAgentList from "./_components/DoctorsAgentList";
 function Dashboard() {
   return (
     <div>
@@ -10,8 +9,8 @@ function Dashboard() {
         <h2 className="font-bold text-2xl">My Dashboard</h2>
         <AddNewSession/>
       </div>
-      <HistoryList />
-      <DoctorsAgentList />
+      <HistoryList/>
+      <DoctorsAgentList/> 
     </div>
   );
 }

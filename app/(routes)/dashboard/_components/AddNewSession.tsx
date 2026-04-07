@@ -1,90 +1,69 @@
 "use client";
 
 import React, { useState } from "react";
-import { FaLongArrowAltRight } from "react-icons/fa";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import axios from "axios";
 
-interface Doctor {
+type Doctor = {
   name: string;
   specialty: string;
-}
+  image: string;
+};
 
-function AddNewSession() {
+export default function AddNewSession() {
   const [note, setNote] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [suggestedDoctors, setSuggestedDoctors] = useState<Doctor[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const router = useRouter();
 
-  const handleNext = async () => {
-    if (!note) return;
-    try {
-      setLoading(true);
-      const { data } = await axios.post<Doctor[]>("/api/session-doctor", {
-        notes: note,
-      });
-      setSuggestedDoctors(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  const getDoctors = async () => {
+    const { data } = await axios.post("/api/session-doctor", {
+      notes: note,
+    });
+    setDoctors(data);
+  };
+
+  const startConsultation = async () => {
+    const { data } = await axios.post("/api/session-chat", {
+      notes: note,
+      selectedDoctor, // ✅ full object
+    });
+
+    router.push(`/dashboard/medical-agent/${data.sessionId}`);
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="mt-3">+ Start a Consultation</Button>
-      </DialogTrigger>
+    <div className="p-5">
+      <Textarea
+        placeholder="Enter symptoms..."
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+      />
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add Basic Details</DialogTitle>
-          <DialogDescription>
-            <Textarea
-              placeholder="Add symptoms or any details..."
-              className="h-40 mt-2"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </DialogDescription>
-        </DialogHeader>
+      <Button onClick={getDoctors} className="mt-3">
+        Next
+      </Button>
 
-        <DialogFooter className="flex justify-between">
-          <DialogClose>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-
-          <Button onClick={handleNext} disabled={!note || loading}>
-            {loading ? "Loading..." : "Next"}
-            <FaLongArrowAltRight className="ml-2" />
-          </Button>
-        </DialogFooter>
-
-        {/* Render doctors below footer, not inside it */}
-        {suggestedDoctors.length > 0 && (
-          <div className="mt-5 grid grid-cols-2 gap-4">
-            {suggestedDoctors.map((doc, idx) => (
-              <div key={idx} className="p-4 border rounded-xl">
-                <h2 className="font-semibold">{doc.name}</h2>
-                <p className="text-sm text-gray-600">{doc.specialty}</p>
-              </div>
-            ))}
+      <div className="grid grid-cols-2 gap-3 mt-5">
+        {doctors.map((doc, i) => (
+          <div
+            key={i}
+            onClick={() => setSelectedDoctor(doc)}
+            className="p-3 border rounded cursor-pointer"
+          >
+            <h2>{doc.name}</h2>
+            <p>{doc.specialty}</p>
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+        ))}
+      </div>
+
+      {selectedDoctor && (
+        <Button onClick={startConsultation} className="mt-4 w-full">
+          Start Consultation
+        </Button>
+      )}
+    </div>
   );
 }
-
-export default AddNewSession;
