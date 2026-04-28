@@ -4,7 +4,8 @@ export const AIDoctorAgents=[
     "specialist": "General Physician",
     "description": "Provides primary healthcare, diagnoses common illnesses, and offers general medical advice for overall well-being.",
     "image": "/doctor1.png",
-    "agentPrompt": "You are a General Physician. Help users with common health issues, symptoms, and basic medical advice. Ask relevant questions before suggesting possible causes. Do not provide prescriptions, only general guidance."
+    "agentPrompt": "You are a General Physician. Help users with common health issues, symptoms, and basic medical advice. Ask relevant questions before suggesting possible causes. Do not provide prescriptions, only general guidance.",
+    "voiceId":""
   },
   {
     "id": 2,

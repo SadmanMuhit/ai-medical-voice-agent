@@ -18,15 +18,19 @@ type SessionDetails = {
   selectedDoctor: AIDoctorAgent;
   createdOn: string;
 };
-
+type message={
+  role: string,
+  text: string
+}
 const MedicalVoiceAgent = () => {
   const { sessionid } = useParams();
   const [sessionDetails, setSessionDetails] = useState<SessionDetails>();
   const [callStarted, setCallStarted] =useState(false);
   const [vapiInstance, setVapiInstance] =useState<any>();
-  const [currentRoll, setCurrentRoll] =useState<string>();
+  const [currentRoll, setCurrentRoll] =useState<string | null>();
   const [liveTranscript, setLiveTranscript] =useState<string>();
-  useEffect(() => {
+  const [message,setMessage] =useState<message[]>([])
+  useEffect(() => { 
     sessionid && GetSessionDetails();
   }, [sessionid]);
   const GetSessionDetails = async () => {
@@ -50,6 +54,17 @@ const MedicalVoiceAgent = () => {
   if (message.type === 'transcript') {
     const {role, transcriptType,transcript} = message;
     console.log(`${message.role}: ${message.transcript}`);
+    if(transcriptType=='partial')
+    {
+      setLiveTranscript(transcript);
+      setCurrentRoll(role);
+    }
+    else if(transcriptType=='final'){
+      // final transcript
+      setMessage((prev:any)=>[...prev,{role:role,text:transcript}])
+      setLiveTranscript("");
+      setCurrentRoll(null);
+    }
   }
 });
 
@@ -91,9 +106,11 @@ const MedicalVoiceAgent = () => {
         <h2 className="mt-2 text-lg">{sessionDetails?.selectedDoctor?.specialist}</h2>
         <p className="text-sm text-gray-400">AI Medical Voice Agent</p>
 
-        <div className="mt-32">
-          <h2 className="text-gray-400">Assistant Msg</h2>
-          <h2 className="text-lg">User Msg</h2>
+        <div className="mt-1  2 overflow-y-auto flex flex-col items-center px-10 md:px-28 lg:px-52 xl:px-72">
+          {message.slice(-4).map((msg,index)=>(
+              <h2 className="text-gray-400" key={index}>{msg.role}: {msg.text}</h2>
+          ))}
+          {liveTranscript&&liveTranscript?.length>0&& <h2 className="text-lg">{currentRoll}:{liveTranscript}</h2>}
         </div>
 
         {!callStarted ? <Button className="mt-20" onClick={StartCall}><PhoneCallIcon/>Start Call</Button>

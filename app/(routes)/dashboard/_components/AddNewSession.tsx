@@ -39,6 +39,7 @@ export default function AddNewSession() {
       <Textarea
         placeholder="Enter symptoms..."
         value={note}
+        className="h-50"
         onChange={(e) => setNote(e.target.value)}
       />
 
